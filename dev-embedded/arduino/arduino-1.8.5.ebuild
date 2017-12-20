@@ -3,13 +3,14 @@
 
 EAPI=6
 JAVA_PKG_IUSE="doc"
-IUSE='+java +arduino-core-avr +arduino-core-samd'
+IUSE='+java +arduino-core-avr arduino-core-samd udooqdl'
 
 inherit java-pkg-opt-2 java-ant-2 user
 
 DESCRIPTION="An open-source AVR electronics prototyping platform"
 HOMEPAGE="http://arduino.cc/"
-SRC_URI="https://github.com/arduino/Arduino/archive/${PV}.tar.gz"
+SRC_URI="https://github.com/arduino/Arduino/archive/${PV}.tar.gz
+	udooqdl? ( https://github.com/UDOOboard/arduino-board-package/archive/boardmanager.tar.gz )"
 
 LICENSE="GPL-2 LGPL-2.1 CC-BY-SA-3.0"
 SLOT="0"
@@ -20,12 +21,6 @@ KEYWORDS="~amd64 ~arm ~x86"
 # The offending files are all .elf firmware and prebuilt embedded static
 # libs (about 10 files in total) required for specific hardware.
 RESTRICT="strip binchecks"
-
-PATCHES=(
-	"${FILESDIR}/${P}"-startup.patch
-	"${FILESDIR}/${P}"-platform.patch
-	"${FILESDIR}"/${P}-remove-avr-gcc-tools-dependency.patch
-)
 
 #HTML_DOCS=(  )
 
@@ -65,11 +60,21 @@ RDEPEND="
 		dev-embedded/arduino-builder
 		dev-embedded/avrdude
 		dev-embedded/uisp )
-	arduino-core-samd? ( dev-embedded/bossa )"
+	|| (
+		arduino-core-samd? ( >=dev-embedded/bossa-1.8 )
+		udooqdl? ( dev-embedded/bossa[udooqdl=] )
+	)"
 
 DEPEND="
 	java? ( ${JDEPEND}
-		>=virtual/jdk-1.8 )"
+		>=virtual/jdk-1.8 )
+	virtual/udev"
+
+PATCHES=(
+	"${FILESDIR}/${P}"-startup.patch
+	"${FILESDIR}/${P}"-platform.patch
+	"${FILESDIR}"/${P}-remove-avr-gcc-tools-dependency.patch
+)
 
 EANT_GENTOO_CLASSPATH="batik-1.9,bcpg-1.58,bcprov-1.58,commons-codec,commons-compress,commons-httpclient-3,commons-lang-3.3,commons-logging,commons-net,jackson-2,jackson-annotations-2,jackson-databind-2,jackson-modules-base-2,jmdns,jna,jsch,jssc,xml-commons-external-1.3,xmlgraphics-commons-2"
 EANT_EXTRA_ARGS="-Djava.net.preferIPv4Stack=true"
@@ -79,6 +84,7 @@ JAVA_ANT_REWRITE_CLASSPATH="yes"
 S="${WORKDIR}/Arduino-${PV}"
 CORE="/usr/share/arduino"
 SHARE="/usr/share/${PN}"
+BOARDS="${WORKDIR}/arduino-board-package-boardmanager"
 
 pkg_setup() {
 	# group may not exist yet
@@ -92,8 +98,15 @@ src_prepare() {
 	# Elegant, but breaks the build :(
 	#rm -f {arduino-core,app}/lib/{apple*,batik*,bcpg*,bcprov*,commons-[^e]*,jackson-*,jmdns*,jna*,jsch*,jssc*,xmlgraphics*} || die
 
+	if use udooqdl ; then
+		mkdir -p "${S}"/hardware/UDOO
+		cp -R "${BOARDS}"/udoo/sam "${S}"/hardware/UDOO/ || die
+	fi
+
 	default
 
+	use udooqdl && eapply "${FILESDIR}"/${PN}-fix-utoa-to-match-name.patch \
+		"${FILESDIR}"/${PN}-sam-platform-toolchain.patch
 }
 
 src_compile() {
@@ -156,10 +169,12 @@ src_install() {
 				"${PN}.png"
 		done
 	fi
+
+	# adjust rules for board-specific devices
+	use udooqdl && udev_dorules "${FILESDIR}"/80-udoo-${PN}.rules
 }
 
 pkg_postinst() {
-
 	elog
 	elog "To be able to use the Arduino IDE you need to aquire the avr toolchain,"
 	elog "i.e., install crossdev-99999999 and run: "

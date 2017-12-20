@@ -1,0 +1,6 @@
+ACTION!="add", GOTO="default_end"
+
+KERNEL=="ttymxc[2-3]", GROUP="uucp", MODE="0660"
+KERNEL=="udoo_ard", GROUP="uucp", MODE="0660"
+
+LABEL="default_end"

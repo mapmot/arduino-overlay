@@ -1,0 +1,32 @@
+From 3ace00ee9a5a1372c321f4b97b941eb7c040ef80 Mon Sep 17 00:00:00 2001
+From: Scott Shumate <scott@esquilo.io>
+Date: Sun, 21 May 2017 10:42:35 -0500
+Subject: [PATCH] Fixes issue #37 where the input pointer was compared to the
+ null character.
+
+---
+ src/Command.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/Command.cpp b/src/Command.cpp
+index 74abd45..50c170a 100644
+--- a/udoo/src/Command.cpp
++++ b/udoo/src/Command.cpp
+@@ -717,7 +717,7 @@ CommandMwb::invoke(char* argv[], int argc)
+             char* input = readline("? ");
+             if (!input)
+                 return;
+-            if (input == '\0' ||
++            if (*input == '\0' ||
+                 !argUint32(input, &value))
+             {
+                 free(input);
+@@ -820,7 +820,7 @@ CommandMww::invoke(char* argv[], int argc)
+             char* input = readline("? ");
+             if (!input)
+                 return;
+-            if (input == '\0' ||
++            if (*input == '\0' ||
+                 !argUint32(input, &value))
+             {
+                 free(input);

@@ -1,0 +1,43 @@
+From 549a8055fa31ba23365e8d5849570a93bff3073f Mon Sep 17 00:00:00 2001
+From: Kyle Evans <kevans91@ksu.edu>
+Date: Thu, 13 Oct 2016 17:21:11 -0500
+Subject: [PATCH] Fix signature and definition of utoa to match name
+
+Modified for UDOO sam3 (arduino DUE)
+
+---
+ hardware/arduino/sam/cores/arduino/itoa.c | 2 +-
+ hardware/arduino/sam/cores/arduino/itoa.h | 3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/hardware/UDOO/sam/cores/arduino/itoa.c b/hardware/UDOO/sam/cores/arduino/itoa.c
+index fc35766021..ecd87f30c1 100644
+--- a/hardware/UDOO/sam/cores/arduino/itoa.c
++++ b/hardware/UDOO/sam/cores/arduino/itoa.c
+@@ -121,7 +121,7 @@ extern char* ltoa( long value, char *string, int radix )
+   return string;
+ }
+ 
+-extern char* utoa( unsigned long value, char *string, int radix )
++extern char* utoa( unsigned int value, char *string, int radix )
+ {
+   return ultoa( value, string, radix ) ;
+ }
+diff --git a/hardware/UDOO/sam/cores/arduino/itoa.h b/hardware/UDOO/sam/cores/arduino/itoa.h
+index 59af109473..751c490b59 100644
+--- a/hardware/UDOO/sam/cores/arduino/itoa.h
++++ b/hardware/UDOO/sam/cores/arduino/itoa.h
+@@ -31,7 +31,7 @@ extern void itoa( int n, char s[] ) ;
+ 
+ extern char* itoa( int value, char *string, int radix ) ;
+ extern char* ltoa( long value, char *string, int radix ) ;
+-extern char* utoa( unsigned long value, char *string, int radix ) ;
++extern char* utoa( unsigned int value, char *string, int radix ) ;
+ extern char* ultoa( unsigned long value, char *string, int radix ) ;
+ #endif /* 0 */
+ 
+@@ -40,3 +40,4 @@ extern char* ultoa( unsigned long value, char *string, int radix ) ;
+ #endif // __cplusplus
+ 
+ #endif // _ITOA_
++
