@@ -18,7 +18,7 @@ SLOT="0"
 IUSE=""
 KEYWORDS="~amd64 ~arm ~x86"
 
-RDEPEND="
+RDEPEND="x11-libs/wxGTK
 "
 DEPEND="${RDEPEND}
 "
