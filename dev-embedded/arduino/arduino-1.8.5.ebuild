@@ -3,7 +3,7 @@
 
 EAPI=6
 JAVA_PKG_IUSE="doc"
-IUSE='+java +arduino-core-avr +arduino-core-samd'
+IUSE='+java +arduino-core-avr arduino-core-samd'
 
 inherit java-pkg-opt-2 java-ant-2 user
 
